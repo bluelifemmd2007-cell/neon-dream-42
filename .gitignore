@@ -1,0 +1,5 @@
+*.log
+*.pid
+config.local.json
+.DS_Store
+.vscode/
