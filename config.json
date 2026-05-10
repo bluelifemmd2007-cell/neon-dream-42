@@ -1,0 +1,63 @@
+{"dns": {
+"hosts": {
+"cloudflare-dns.com": ["216.239.38.120"],
+"domain:com": ["216.239.38.120"],
+"domain:ir": ["216.239.38.120"],
+"domain:org": ["216.239.38.120"]
+},
+"servers": ["https://cloudflare-dns.com/dns-query"],
+"tag": "dns"
+},
+"remarks": "neon-dream-42",
+"inbounds": [
+{
+"domainOverride": ["http", "tls"],
+"listen": "127.0.0.1",
+"port": 10808,
+"protocol": "socks",
+"settings": {"auth": "noauth", "udp": true, "userLevel": 8},
+"sniffing": {"destOverride": ["http", "tls"], "enabled": true, "metadataOnly": true},
+"tag": "socks-in"
+},
+{
+"listen": "127.0.0.1",
+"port": 10809,
+"protocol": "http",
+"settings": {"userLevel": 8},
+"sniffing": {"destOverride": ["http", "tls"], "enabled": true, "metadataOnly": true},
+"tag": "http-in"
+}
+],
+"outbounds": [
+{
+"domainStrategy": "UseIP",
+"protocol": "freedom",
+"settings": {"fragment": {"interval": "10-20", "length": "10-20", "packets": "tlshello"}},
+"tag": "fragment-out"
+},
+{"protocol": "dns", "tag": "dns-out"},
+{
+"protocol": "vless",
+"settings": {"vnext": [{"address": "google.com", "port": 443, "users": [{"encryption": "none", "flow": "", "id": "UUID", "level": 8, "security": "auto"}]}]},
+"streamSettings": {
+"network": "ws",
+"security": "tls",
+"tlsSettings": {"allowInsecure": false, "alpn": ["h2", "http/1.1"], "fingerprint": "randomized", "serverName": "google.com"},
+"wsSettings": {"headers": {"Host": "google.com"}, "path": "/"}
+},
+"tag": "fakeproxy-out"
+},
+{"protocol": "freedom", "settings": {"domainStrategy": "UseIP"}, "tag": "direct"}
+],
+"routing": {
+"domainStrategy": "UseIP",
+"rules": [
+{"ip": ["geoip:private"], "outboundTag": "direct", "type": "field"},
+{"domain": ["geosite:private"], "outboundTag": "direct", "type": "field"},
+{"domain": ["geosite:telegram"], "outboundTag": "fakeproxy-out", "type": "field"},
+{"ip": ["geoip:ir"], "outboundTag": "direct", "type": "field"},
+{"inboundTag": ["socks-in", "http-in"], "outboundTag": "dns-out", "port": "53", "type": "field"},
+{"inboundTag": ["socks-in", "http-in"], "network": "tcp", "outboundTag": "fragment-out", "type": "field"}
+]
+}
+}
