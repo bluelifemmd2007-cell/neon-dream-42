@@ -6,7 +6,5 @@
 
 echo "🔄 در حال بروزرسانی neon-dream-42..."
 
-# پشتیبان‌گیری از کانفیگ فعلی
 cp /usr/local/etc/xray/config.json /usr/local/etc/xray/config.json.backup
 
-// ادامه اسکریپت
